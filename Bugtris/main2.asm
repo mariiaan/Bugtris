@@ -74,18 +74,22 @@ RECT ends
     SND_ASYNC                   EQU 1
 
                                 ; Tetromino shape definitions
-    TETRO_0                     db  2, 4, "x x x xx"     ; L
-    TETRO_1                     db  2, 4, " x x xxx"     ; Reverse L
-    TETRO_2                     db  2, 2, "xxxx"         ; Block
-    TETRO_3                     db  4, 1, "xxxx"         ; Line
-    TETRO_4                     db  3, 2, " xxxx "       ; snake from BL to TR
-    TETRO_5                     db  3, 2, "xx  xx"       ; snake from TR to BL
-    TETRO_6                     db  3, 2, " x xxx"       ; penith
+    TETRO_0                     db  2, 4, 1, "x x x xx"     ; L
+    TETRO_1                     db  2, 4, 2, " x x xxx"     ; Reverse L
+    TETRO_2                     db  2, 2, 3, "xxxx"         ; Block
+    TETRO_3                     db  4, 1, 4, "xxxx"         ; Line
+    TETRO_4                     db  3, 2, 5, " xxxx "       ; snake from BL to TR
+    TETRO_5                     db  3, 2, 6, "xx  xx"       ; snake from TR to BL
+    TETRO_6                     db  3, 2, 7, " x xxx"       ; penith
     
-    poolStart:
+    shapePoolStart:
     TETRO_SHAPE_POOL            dq TETRO_0, TETRO_1, TETRO_2, TETRO_3, TETRO_4, TETRO_5, TETRO_6
                                 ; Tetromino shape pool
-    TETRO_SHAPE_POOL_SIZE       EQU ($-poolStart)/8
+    TETRO_SHAPE_POOL_SIZE       EQU ($-shapePoolStart) / 8
+    colorPoolStart:
+    COLOR_POOL                  dq 0H, 0000F0A0H, 00FF0000H, 00F000F0H, 00F0F000H, 0000FF00H, 000000FFH, 0000F0A0H
+    COLOR_POOL_SIZE             EQU ($-colorPoolStart) / 8
+
     TETRO_MAX_WIDTH             EQU 4
     TETRO_MAX_HEIGHT            EQU 4
     TETRO_BUFFER_SIZE           EQU TETRO_MAX_WIDTH * TETRO_MAX_HEIGHT
@@ -99,6 +103,7 @@ RECT ends
     tetroBufferRotateTmp        db  TETRO_BUFFER_SIZE   dup(?)
     tetroBufferCurrentWidth     db  ?
     tetroBufferCurrentHeight    db  ?
+    tetroBufferCurrentState     db  ? 
     playerPosX                  db  ?
     playerPosY                  db  ?
     hdc                         dq  ?
@@ -106,6 +111,24 @@ RECT ends
     skipNextGL                  db  ?
     
 .code                           ; --------------------------
+
+; (in) rcx state
+; (out) rax color
+GetColor PROC
+    push r8
+    push rdx
+    mov rax, rcx
+    mov r8, 8
+    mul r8
+
+    lea r8, COLOR_POOL
+    add r8, rax
+
+    mov rax, [r8]
+    pop rdx
+    pop r8
+    ret
+GetColor ENDP
 
 main PROC 
     call InitRandom
@@ -158,10 +181,11 @@ main PROC
     mov rax, GRID_SIZE_X
     mul r11
     mov r12, rax
+    add r12, 16
     mov rax, GRID_SIZE_Y
     mul r11
     mov r13, rax
-    add r13, 12
+    add r13, 24 + 12
    
     ; Create Window
     xor ecx, ecx                                ; dwExStyle
@@ -322,15 +346,20 @@ LoadTetromino PROC
 
     ; r8 -> [0] tetro width
     mov al, byte ptr [r8]
-    mov [tetroBufferCurrentWidth], al
+    mov byte ptr [tetroBufferCurrentWidth], al
     inc r8
     
     ; r8 -> [1] tetro height
     mov al, byte ptr [r8]
-    mov [tetroBufferCurrentHeight], al
+    mov byte ptr [tetroBufferCurrentHeight], al
     inc r8
 
-    ; r8 -> [2] tetromino data 
+     ; r8 -> [2] tetro color
+    mov al, byte ptr [r8]
+    mov byte ptr [tetroBufferCurrentState], al
+    inc r8
+
+    ; r8 -> [3] tetromino data 
 
     push r10                                        ; x = 0
     push r11                                        ; y = 0
@@ -663,8 +692,7 @@ SetTetroTmpState ENDP
 GetFieldState PROC
     push r8
     push rdx
-    mov r8, GRID_SIZE_Y
-    cmp rdx, r8
+    cmp rdx, GRID_SIZE_Y
     jge false_oob
     mov r8, GRID_SIZE_X
     cmp rcx, r8
@@ -776,58 +804,6 @@ RenderBlock PROC
     ret
 RenderBlock ENDP
 
-; (in) rcx row index
-CheckIfRowFull PROC
-    push rdx
-    xor rdx, rdx
-    push r8
-    xor r8, r8
-    mov r8b, byte ptr [GRID_SIZE_X]
-
-_loop:
-    cmp rdx, r8
-    je _loop_break_true
-
-    push rcx
-    push rdx
-    mov rdx, rcx
-    mov rcx, r8        
-    call GetFieldState
-    pop rdx
-    pop rcx
-    test rax, rax
-    jz _loop_break_false
-
-    jmp _loop
-
-_loop_break_false:
-    mov rax, 0
-    jmp _loop_break
-
-_loop_break_true:
-    mov rax, 1
-_loop_break:
-    pop r8
-    pop rdx
-
-    ret
-CheckIfRowFull ENDP
-
-; (in) rcx row to clear
-ClearAndMoveDown PROC
-
-    ret
-ClearAndMoveDown ENDP
-
-CheckRowClear PROC
-    push rcx
-    mov rcx, GRID_SIZE_Y - 1        ; row index
-    
-
-    pop rdx
-    ret
-CheckRowClear ENDP
-
 RenderPlayerField PROC
     push rcx
     push rdx
@@ -852,14 +828,19 @@ loop_x:
     je loop_x_break
 
     call GetFieldState
-    cmp al, 1          ; Set field;
-    je draw_single_block
+    test al, al
+    jnz draw_single_block
 
     jmp loop_x_continue
 
 draw_single_block:
     push r8
-    mov r8, 00FF0000h
+    push rcx
+    ;mov r8, 00FF0000h
+    mov cl, al
+    call GetColor
+    mov r8, rax
+    pop rcx
     call RenderBlock
     pop r8
     jmp loop_x_continue
@@ -935,8 +916,16 @@ _loopX:
     mov rdx, rbx
     add rdx, r9
     push r8
-    mov r8, 000000FFh         ; Todo state to color
+
     push rax
+    push rcx
+    mov cl, byte ptr [tetroBufferCurrentState]
+    call GetColor
+    pop rcx
+    mov r8, rax         ; Todo state to color
+    ;pop rax
+
+    ;push rax
     call RenderBlock
     pop rax
     pop r8
@@ -965,6 +954,108 @@ _loopY_break:
     pop rax
     ret
 RenderPlayer ENDP
+
+; (in) rcx row index
+CheckIfRowFull PROC
+    push rdx
+    xor rdx, rdx
+    push r8
+    xor r8, r8
+    mov r8b, GRID_SIZE_X
+
+_loop:
+    cmp rdx, r8
+    je _loop_break_true
+
+    push rcx
+    push rdx
+    xchg rcx, rdx      
+    call GetFieldState
+    pop rdx
+    pop rcx
+    test rax, rax
+    jz _loop_break_false
+
+    inc rdx
+    jmp _loop
+
+_loop_break_false:
+    mov rax, 0
+    jmp _loop_break
+
+_loop_break_true:
+    mov rax, 1
+_loop_break:
+    pop r8
+    pop rdx
+
+    ret
+CheckIfRowFull ENDP
+
+; (in) rcx: base row
+MoveRowDown PROC
+
+    ret
+MoveRowDown ENDP
+
+; (in) rcx row to clear
+ClearRow PROC
+    push r8
+    xor r8, r8
+_loop:
+    cmp r8, GRID_SIZE_X 
+    je _loop_break
+
+    push rcx
+    push rdx
+    push r8
+    mov rdx, rcx
+    mov rcx, r8
+    mov r8, 0
+    call SetFieldState
+    pop r8
+    pop rdx
+    pop rcx
+
+    inc r8
+    jmp _loop
+
+_loop_break:
+    pop r8
+
+    ret
+ClearRow ENDP
+
+CheckRowClear PROC
+    push rcx
+    mov rcx, GRID_SIZE_Y - 1       ; row index
+    push r8
+
+_loop:
+    cmp rcx, 0
+    jl loop_break
+    xor r8, r8
+
+innerloop:
+    call CheckIfRowFull
+    test rax, rax
+    jz loop_continue
+    inc r8
+    call ClearRow
+    call MoveRowDown
+    jmp innerloop
+
+loop_continue:
+    ; todo attrib points with combo in r8
+    dec rcx
+    jmp _loop
+
+loop_break:
+    
+    pop r8
+    pop rdx
+    ret
+CheckRowClear ENDP
 
 GameUpdate PROC
     call MovePlayerDown
@@ -1077,12 +1168,14 @@ IsPlayerJammedInBounds PROC
 
     mov rcx, GRID_SIZE_X
     sub cl, byte ptr [tetroBufferCurrentWidth]
+    inc cl
     cmp bl, cl
     jge return_true
 
     mov bl, byte ptr [playerPosY]
     mov rcx, GRID_SIZE_Y
     sub cl, byte ptr [tetroBufferCurrentHeight]
+    inc cl
     cmp bl, cl
     jge return_true
 
@@ -1139,7 +1232,7 @@ loopX:
     add cl, byte ptr [playerPosX]
     add dl, byte ptr [playerPosY]
     push r8
-    mov r8, 1
+    mov r8b, [tetroBufferCurrentState]
     call SetFieldState
     pop r8
     sub dl, byte ptr [playerPosY]

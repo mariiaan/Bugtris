@@ -21,6 +21,7 @@ EndPaint PROTO
 GetClientRect PROTO
 GetTickCount PROTO
 PlaySoundA PROTO
+Sleep PROTO
 
 RECT struct
     left dd ?
@@ -154,8 +155,7 @@ main PROC
 
     mov byte ptr [playerPosX], 0
     mov byte ptr [playerPosY], 0
-
-   
+    
     ; Get Module handle
     mov rax, GetModuleHandleA(0) 
     mov [moduleHandle], rax
@@ -992,11 +992,60 @@ _loop_break:
     ret
 CheckIfRowFull ENDP
 
-; (in) rcx: base row
+; (in) rcx: base row. row above will get copied
 MoveRowDown PROC
+    push rdx
+    push r8
+    push r9
+    xor rdx, rdx
+_loop:
+    cmp rdx, GRID_SIZE_X
+    je _loop_break
 
+    
+    ; read state
+    push rcx    ; rn Y
+    dec rcx     ; rn Y-1
+    push rdx    ; rn X
+    xchg rcx, rdx
+    ; rcx->X
+    ; rdx->Y-1
+    call GetFieldState
+    mov r8, rax
+    pop rdx
+    pop rcx
+    ; to copy is now in r8
+    push rcx
+    push rdx
+    xchg rcx, rdx
+    call SetFieldState
+    pop rdx
+    pop rcx
+
+
+    inc rdx
+    jmp _loop
+_loop_break:
+
+    pop r9
+    pop r8
+    pop rdx
     ret
 MoveRowDown ENDP
+
+; (in) rcx: base row to start
+MoveAllRowsDown PROC
+    push rcx
+_loop:
+    test rcx, rcx
+    jz _loop_break
+    call MoveRowDown
+    dec rcx
+    jmp _loop
+_loop_break:
+    pop rcx
+    ret
+MoveAllRowsDown ENDP
 
 ; (in) rcx row to clear
 ClearRow PROC
@@ -1042,7 +1091,7 @@ innerloop:
     jz loop_continue
     inc r8
     call ClearRow
-    call MoveRowDown
+    call MoveAllRowsDown
     jmp innerloop
 
 loop_continue:
@@ -1282,8 +1331,8 @@ cleanup:
     ret
 MovePlayerDown ENDP
 
-TryRotateCCW PROC
-    call RotateTetroCCW
+TryRotateCW PROC
+    call RotateTetroCW
     call IsPlayerJammed
     test rax, rax
     jz doReturn
@@ -1291,14 +1340,14 @@ TryRotateCCW PROC
 
 doReturn:
     ret
-TryRotateCCW ENDP
+TryRotateCW ENDP
 
 ; (in) rcx keycode
 OnKeyDown PROC
     and ecx, 00FFFFFFh  ; Remove repeat-count
     
     cmp ecx, VK_W
-    je rotateCCW
+    je rotateCW
     cmp ecx, VK_S
     je goDown
     cmp ecx, VK_A
@@ -1328,8 +1377,8 @@ goRight:
 goRight_cleanup:
     call RequestPaint
     jmp cleanup
-rotateCCW:
-    call TryRotateCCW
+rotateCW:
+    call TryRotateCW
     call RequestPaint
     jmp cleanup
 goDown:

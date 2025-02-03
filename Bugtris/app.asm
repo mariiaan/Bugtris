@@ -51,7 +51,7 @@ RECT ends
         
 .const                          ; Game settings ---
     myClassName                 db "TestKlasse", 0
-    myWindowTitle               db "Tetris", 0
+    myWindowTitle               db "Bugtris", 0
 
     GRID_SIZE_X                 EQU 30
     GRID_SIZE_Y                 EQU 40

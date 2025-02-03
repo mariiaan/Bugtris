@@ -26,254 +26,252 @@ MessageBoxA PROTO
 KillTimer PROTO
 
 RECT struct
-    left dd ?
-    top dd ?
-    right dd ?
-    bottom dd ?
+	left dd ?
+	top dd ?
+	right dd ?
+	bottom dd ?
 RECT ends
 
 .data
-     wndClass_start:
-        wndClass_style          dd  0                       ; 4 bytes
-        ; Align to 8-byte boundary
-        align 8
-        wndClass_wndProc        dq  0                       ; 8 bytes
-        wndClass_cbClsExtra     dd  0                       ; 4 bytes
-        wndClass_cbWndExtra     dd  0                       ; 4 bytes
-        ; align 8 not needed, we have two dds above
-        wndClass_hInstance      dq  0                       ; 8 bytes
-        wndClass_hIcon          dq  0                       ; 8 bytes
-        wndClass_hCursor        dq  0                       ; 8 bytes
-        wndClass_hBrush         dq  0                       ; 8 bytes
-        wndClass_menName        dq  0                       ; 8 bytes
-        wndClass_className      dq  0                       ; 8 bytes
-    wndClass_sizeof             EQU $ - wndClass_start   
-        
+	 wndClass_start:
+		wndClass_style          dd  0                       ; 4 bytes
+		; Align to 8-byte boundary
+		align 8
+		wndClass_wndProc        dq  0                       ; 8 bytes
+		wndClass_cbClsExtra     dd  0                       ; 4 bytes
+		wndClass_cbWndExtra     dd  0                       ; 4 bytes
+		; align 8 not needed, we have two dds above
+		wndClass_hInstance      dq  0                       ; 8 bytes
+		wndClass_hIcon          dq  0                       ; 8 bytes
+		wndClass_hCursor        dq  0                       ; 8 bytes
+		wndClass_hBrush         dq  0                       ; 8 bytes
+		wndClass_menName        dq  0                       ; 8 bytes
+		wndClass_className      dq  0                       ; 8 bytes
+	wndClass_sizeof             EQU $ - wndClass_start   
+		
 .const                          ; Game settings ---
-    myClassName                 db "TestKlasse", 0
-    myWindowTitle               db "Bugtris", 0
+	myClassName                 db "TestKlasse", 0
+	myWindowTitle               db "Bugtris", 0
 
-    GRID_SIZE_X                 EQU 30
-    GRID_SIZE_Y                 EQU 40
-    BLOCK_PIXEL_LENGTH          EQU 25
+	GRID_SIZE_X                 EQU 30
+	GRID_SIZE_Y                 EQU 40
+	BLOCK_PIXEL_LENGTH          EQU 25
 
-    GRID_NUM_ELEMENTS           EQU GRID_SIZE_X * GRID_SIZE_Y
-    GRID_BYTE_SIZE              EQU GRID_NUM_ELEMENTS
-    StrPoints                   db "Score: ", 0
-    StrGameOver                 db "You have lost.",0
-    StrGameOverCaption          db "Game Over!",0
+	GRID_NUM_ELEMENTS           EQU GRID_SIZE_X * GRID_SIZE_Y
+	GRID_BYTE_SIZE              EQU GRID_NUM_ELEMENTS
+	StrPoints                   db "Score: ", 0
+	StrGameOver                 db "You have lost.",0
+	StrGameOverCaption          db "Game Over!",0
 
 .const                          ; Win32 Definitions ---
-    WS_OVERLAPPEDWINDOW         EQU 13565952
-    WS_SYSMENU                  EQU 00080000H
-    CW_USEDEFAULT               EQU -2147483648
-    WM_CREATE                   EQU 1
-    WM_DESTROY                  EQU 2
-    WM_PAINT                    EQU 15
-    WM_TIMER                    EQU 275 
-    WM_KEYDOWN                  EQU 256
-    WM_ERASEBACKGROUND          EQU 014h
-    VK_W                        EQU 110001h
-    VK_A                        EQU 1E0001h
-    VK_S                        EQU 1F0001h
-    VK_D                        EQU 200001h
-    SND_ASYNC                   EQU 1
-                                ; Tetromino shape definitions
-                                ;   width   height  color   data
-    TETRO_0                     db  2,      3,      1,      "x x xx"     ; L
-    TETRO_1                     db  2,      3,      2,      " x xxx"     ; J
-    TETRO_2                     db  2,      2,      3,      "xxxx"       ; Block
-    TETRO_3                     db  4,      1,      4,      "xxxx"       ; Line
-    TETRO_4                     db  3,      2,      5,      " xxxx "     ; S: snake from BL to TR
-    TETRO_5                     db  3,      2,      6,      "xx  xx"     ; Z: from TR to BL
-    TETRO_6                     db  3,      2,      7,      " x xxx"     ; T
-    
-    shapePoolStart:
-    TETRO_SHAPE_POOL            dq TETRO_0, TETRO_1, TETRO_2, TETRO_3, TETRO_4, TETRO_5, TETRO_6, TETRO_3
-                                ; Tetromino shape pool
-    TETRO_SHAPE_POOL_SIZE       EQU ($-shapePoolStart) / 8
-    colorPoolStart:
-    COLOR_POOL                  dq 0H, 0000F0A0H, 00FF0000H, 00F000F0H, 00F0F000H, 0000FF00H, 000000FFH, 0000F0A0H
-    COLOR_POOL_SIZE             EQU ($-colorPoolStart) / 8
+	WS_OVERLAPPEDWINDOW         EQU 13565952
+	WS_SYSMENU                  EQU 00080000H
+	CW_USEDEFAULT               EQU -2147483648
+	WM_CREATE                   EQU 1
+	WM_DESTROY                  EQU 2
+	WM_PAINT                    EQU 15
+	WM_TIMER                    EQU 275 
+	WM_KEYDOWN                  EQU 256
+	WM_ERASEBACKGROUND          EQU 014h
+	VK_W                        EQU 110001h
+	VK_A                        EQU 1E0001h
+	VK_S                        EQU 1F0001h
+	VK_D                        EQU 200001h
+	SND_ASYNC                   EQU 1
+								; Tetromino shape definitions
+								;   width   height  color   data
+	TETRO_0                     db  2,      3,      1,      "x x xx"     ; L
+	TETRO_1                     db  2,      3,      2,      " x xxx"     ; J
+	TETRO_2                     db  2,      2,      3,      "xxxx"       ; Block
+	TETRO_3                     db  4,      1,      4,      "xxxx"       ; Line
+	TETRO_4                     db  3,      2,      5,      " xxxx "     ; S: snake from BL to TR
+	TETRO_5                     db  3,      2,      6,      "xx  xx"     ; Z: from TR to BL
+	TETRO_6                     db  3,      2,      7,      " x xxx"     ; T
+	
+	shapePoolStart:
+	TETRO_SHAPE_POOL            dq TETRO_0, TETRO_1, TETRO_2, TETRO_3, TETRO_4, TETRO_5, TETRO_6, TETRO_3
+								; Tetromino shape pool
+	TETRO_SHAPE_POOL_SIZE       EQU ($-shapePoolStart) / 8
+	colorPoolStart:
+	COLOR_POOL                  dq 0H, 0000F0A0H, 00FF0000H, 00F000F0H, 00F0F000H, 0000FF00H, 000000FFH, 0000F0A0H
+	COLOR_POOL_SIZE             EQU ($-colorPoolStart) / 8
 
-    TETRO_MAX_WIDTH             EQU 4
-    TETRO_MAX_HEIGHT            EQU 4
-    TETRO_BUFFER_SIZE           EQU TETRO_MAX_WIDTH * TETRO_MAX_HEIGHT
+	TETRO_MAX_WIDTH             EQU 4
+	TETRO_MAX_HEIGHT            EQU 4
+	TETRO_BUFFER_SIZE           EQU TETRO_MAX_WIDTH * TETRO_MAX_HEIGHT
 
 .data?                          ; --------------------------
-    moduleHandle                dq  ?
-    hwndWindow                  dq  ?
-    msg                         db  48                  dup(?)
-    playField                   db  GRID_BYTE_SIZE      dup(?)
-    tetroBuffer                 db  TETRO_BUFFER_SIZE   dup(?)
-    tetroBufferRotateTmp        db  TETRO_BUFFER_SIZE   dup(?)
-    tetroBufferCurrentWidth     db  ?
-    tetroBufferCurrentHeight    db  ?
-    tetroBufferCurrentState     db  ? 
-    playerPosX                  db  ?
-    playerPosY                  db  ?
-    hdc                         dq  ?
-    rndSeed                     dq  ?
-    skipNextGL                  db  ?
-    points                      dq  ?
-    pointsBuf                   db  12                  dup(?)
-    
+	moduleHandle                dq  ?
+	hwndWindow                  dq  ?
+	msg                         db  48                  dup(?)
+	playField                   db  GRID_BYTE_SIZE      dup(?)
+	tetroBuffer                 db  TETRO_BUFFER_SIZE   dup(?)
+	tetroBufferRotateTmp        db  TETRO_BUFFER_SIZE   dup(?)
+	tetroBufferCurrentWidth     db  ?
+	tetroBufferCurrentHeight    db  ?
+	tetroBufferCurrentState     db  ? 
+	playerPosX                  db  ?
+	playerPosY                  db  ?
+	hdc                         dq  ?
+	rndSeed                     dq  ?
+	skipNextGL                  db  ?
+	points                      dq  ?
+	pointsBuf                   db  12                  dup(?)
+	
 .code                           ; --------------------------
 
 ; (in) rcx state
 ; (out) rax color
 GetColor PROC
-    push r8
-    push rdx
-    mov rax, rcx
-    mov r8, 8
-    mul r8
+	push r8
+	push rdx
+	mov rax, rcx
+	mov r8, 8
+	mul r8
 
-    lea r8, COLOR_POOL
-    add r8, rax
+	lea r8, COLOR_POOL
+	add r8, rax
 
-    mov rax, [r8]
-    pop rdx
-    pop r8
-    ret
+	mov rax, [r8]
+	pop rdx
+	pop r8
+	ret
 GetColor ENDP
 
 main PROC 
-    call InitRandom
+	call InitRandom
 
-    push rbp
-    mov rbp, rsp
-    sub rsp, 120h
+	push rbp
+	mov rbp, rsp
+	sub rsp, 120h
 
-   ; mov rax, OFFSET TETRO_0
-    ;mov qword ptr [TETRO_SHAPE_POOL], rax
-    mov byte ptr [pointsBuf], '0'
+	mov byte ptr [pointsBuf], '0'
 
-    call InitPlayField
+	call InitPlayField
 
-    call LoadRandomTetromino
-    call UpdatePointsString
+	call LoadRandomTetromino
+	call UpdatePointsString
 
-    mov rcx, 0
-    mov rdx, 0
-    call GetTetroState
-    mov rcx, 1
-    mov rdx, 0
-    call GetTetroState
+	mov rcx, 0
+	mov rdx, 0
+	call GetTetroState
+	mov rcx, 1
+	mov rdx, 0
+	call GetTetroState
 
-    mov qword ptr [points], 0
-    mov byte ptr [playerPosX], 0
-    mov byte ptr [playerPosY], 0
-    
-    ; Get Module handle
-    mov rax, GetModuleHandleA(0) 
-    mov [moduleHandle], rax
+	mov qword ptr [points], 0
+	mov byte ptr [playerPosX], 0
+	mov byte ptr [playerPosY], 0
+	
+	; Get Module handle
+	mov rax, GetModuleHandleA(0) 
+	mov [moduleHandle], rax
 
-    ; Set instance handle
-    mov rax, [moduleHandle]
-    mov [wndClass_hInstance], rax
+	; Set instance handle
+	mov rax, [moduleHandle]
+	mov [wndClass_hInstance], rax
 
-    ; Set the class name
-    lea rax, myClassName
-    mov [wndClass_className], rax
+	; Set the class name
+	lea rax, myClassName
+	mov [wndClass_className], rax
 
-    lea rax, Offset WndProc
-    mov qword ptr [wndClass_wndProc], rax
+	lea rax, Offset WndProc
+	mov qword ptr [wndClass_wndProc], rax
 
-    ; Register the window class
-    mov rcx, wndClass_start
-    call RegisterClassA
-    test rax, rax
-    jz fail
-    
-    mov r11, BLOCK_PIXEL_LENGTH
-    mov rax, GRID_SIZE_X
-    mul r11
-    mov r12, rax
-    add r12, 16
-    mov rax, GRID_SIZE_Y
-    mul r11
-    mov r13, rax
-    add r13, 24 + 12
+	; Register the window class
+	mov rcx, wndClass_start
+	call RegisterClassA
+	test rax, rax
+	jz fail
+	
+	mov r11, BLOCK_PIXEL_LENGTH
+	mov rax, GRID_SIZE_X
+	mul r11
+	mov r12, rax
+	add r12, 16
+	mov rax, GRID_SIZE_Y
+	mul r11
+	mov r13, rax
+	add r13, 24 + 12
    
-    ; Create Window
-    xor ecx, ecx                                ; dwExStyle
-    lea rdx, OFFSET myClassName                 ; lpClassName
-    lea r8, OFFSET myWindowTitle                ; lpWindowName
-    mov r9d, WS_SYSMENU                         ; dwStyle
-    mov dword ptr [rsp + 32], CW_USEDEFAULT     ; X
-    mov dword ptr [rsp + 40], CW_USEDEFAULT     ; Y
-    mov dword ptr [rsp + 48], r12d              ; nWidth
-    mov dword ptr [rsp + 56], r13d              ; nHeight
-    mov qword ptr [rsp + 64], 0                 ; hWndParent
-    mov qword ptr [rsp + 72], 0                 ; hMenu
-    mov rax, qword ptr [moduleHandle]
-    mov qword ptr [rsp + 80], rax               ; hInstance
-    mov qword ptr [rsp + 88], 0                 ; lpParam
+	; Create Window
+	xor ecx, ecx                                ; dwExStyle
+	lea rdx, OFFSET myClassName                 ; lpClassName
+	lea r8, OFFSET myWindowTitle                ; lpWindowName
+	mov r9d, WS_SYSMENU                         ; dwStyle
+	mov dword ptr [rsp + 32], CW_USEDEFAULT     ; X
+	mov dword ptr [rsp + 40], CW_USEDEFAULT     ; Y
+	mov dword ptr [rsp + 48], r12d              ; nWidth
+	mov dword ptr [rsp + 56], r13d              ; nHeight
+	mov qword ptr [rsp + 64], 0                 ; hWndParent
+	mov qword ptr [rsp + 72], 0                 ; hMenu
+	mov rax, qword ptr [moduleHandle]
+	mov qword ptr [rsp + 80], rax               ; hInstance
+	mov qword ptr [rsp + 88], 0                 ; lpParam
  
-    call CreateWindowExA
+	call CreateWindowExA
 
-    mov [hwndWindow], rax
-    test rax, rax
-    jz fail
+	mov [hwndWindow], rax
+	test rax, rax
+	jz fail
 
-    ; Show the window
-    mov rcx, [hwndWindow]
-    mov rdx, 5
-    call ShowWindow
+	; Show the window
+	mov rcx, [hwndWindow]
+	mov rdx, 5
+	call ShowWindow
 
-    ; Enter the message loop
+	; Enter the message loop
 message_loop:
-    ; Get Message
-    lea rcx, msg
-    mov rdx, 0
-    mov r8, 0
-    mov r9, 0
-    call GetMessageA
-    cmp rax, 1
-    jne message_loop_break
-    ; Translate Message
-    lea rcx, msg
-    call TranslateMessage
-    ; Dispatch Message
-    lea rcx, msg
-    call DispatchMessageA
+	; Get Message
+	lea rcx, msg
+	mov rdx, 0
+	mov r8, 0
+	mov r9, 0
+	call GetMessageA
+	cmp rax, 1
+	jne message_loop_break
+	; Translate Message
+	lea rcx, msg
+	call TranslateMessage
+	; Dispatch Message
+	lea rcx, msg
+	call DispatchMessageA
 
-    jmp message_loop
+	jmp message_loop
 
 message_loop_break:
-    mov rcx, 0
-    call ExitProcess
+	mov rcx, 0
+	call ExitProcess
 
 fail:
-    call GetLastError
-    mov rcx, 1
-    call ExitProcess
+	call GetLastError
+	mov rcx, 1
+	call ExitProcess
 
-    mov rsp, rbp
-    pop rbp
+	mov rsp, rbp
+	pop rbp
 main ENDP
 
 InitPlayField PROC
-    push rbx 
-    lea rax, playField
-    lea rbx, [playField + GRID_BYTE_SIZE]
+	push rbx 
+	lea rax, playField
+	lea rbx, [playField + GRID_BYTE_SIZE]
 _loop:
-    mov byte ptr [rax], 0  
-    inc rax
-    cmp rax, rbx
-    je _loop_break
-    jmp _loop
+	mov byte ptr [rax], 0  
+	inc rax
+	cmp rax, rbx
+	je _loop_break
+	jmp _loop
 _loop_break:
-    pop rbx
-    ret
+	pop rbx
+	ret
 InitPlayField ENDP
 
 ; (out) rax Start Seed
 InitRandom PROC
-    call GetTickCount
-    mov [rndSeed], rax
-    ret
+	call GetTickCount
+	mov [rndSeed], rax
+	ret
 InitRandom ENDP
 
 ; (out) rax random
@@ -295,1211 +293,1174 @@ Random64 ENDP
 ; (in)  rdx max
 ; (out) rax random
 RandomRange PROC
-    push r8
-    mov r8, rcx         ; min
-    push r9 
-    mov r9, rdx         ; max   
-    push r10
-    mov r10, r9
-    sub r10, r8         ; interval
-    push rdx
+	push r8
+	mov r8, rcx         ; min
+	push r9 
+	mov r9, rdx         ; max   
+	push r10
+	mov r10, r9
+	sub r10, r8         ; interval
+	push rdx
 
-    call Random64 
+	call Random64 
    
-    xor rdx, rdx
-    div r10
+	xor rdx, rdx
+	div r10
 
-    mov rax, rdx
-    add rax, r8
+	mov rax, rdx
+	add rax, r8
 
-    pop rdx
-    pop r10
-    pop r9
-    pop r8
-    ret
+	pop rdx
+	pop r10
+	pop r9
+	pop r8
+	ret
 RandomRange ENDP
 
 ; Unsigned integer to string
 ; rsi -> Target string address (must support at least 10 bytes)
 ; rax -> Integer value to be interpreted (32 bit)
 IntToStr PROC
-    push rax                ; Preserve
-    push r9                    ; String index
-    push r10                ; Temporary register for digit character
-    push r11                ; Register for divison, holds the base
-    push rdx                ; Holds the remainder
+	push rax						; Preserve
+	push r9							; String index
+	push r10						; Temporary register for digit character
+	push r11						; Register for divison, holds the base
+	push rdx						; Holds the remainder
 
-    mov r8, 0
-    mov r9, 9                ; We start at the end of the string because little endian
-    mov r11, 10                ; The base we operate in
+	mov r8, 0
+	mov r9, 9						; We start at the end of the string because little endian
+	mov r11, 10						; The base we operate in
 itos_loop:
-    cmp r9, -1                ; Check if we did the whole number (32 bit -> 8 bytes)
-    je itos_ret
+	cmp r9, -1						; Check if we did the whole number (32 bit -> 8 bytes)
+	je itos_ret
 
-    mov rdx, 0
-    idiv r11
+	mov rdx, 0
+	idiv r11
 
-    add rdx, '0'                ; Convert to ASCII
-    mov byte ptr [rsi + r9], dl     ; Move charater into the string
-    dec r9                        ; Increase the string index
+	add rdx, '0'					; Convert to ASCII
+	mov byte ptr [rsi + r9], dl     ; Move charater into the string
+	dec r9							; Increase the string index
 
-    jmp itos_loop
+	jmp itos_loop
 itos_ret:
-    pop rdx
-    pop r11
-    pop r10
-    pop r9
-    pop rax
-    ret
+	pop rdx
+	pop r11
+	pop r10
+	pop r9
+	pop rax
+	ret
 IntToStr ENDP
 
 LoadRandomTetromino PROC
-    push rcx
-    push rdx
-    mov rcx, 0
-    mov rdx, TETRO_SHAPE_POOL_SIZE
-    call RandomRange
-    mov rcx, rax
-    call LoadTetromino
-    pop rdx
-    pop rcx
-    ret
+	push rcx
+	push rdx
+	mov rcx, 0
+	mov rdx, TETRO_SHAPE_POOL_SIZE
+	call RandomRange
+	mov rcx, rax
+	call LoadTetromino
+	pop rdx
+	pop rcx
+	ret
 LoadRandomTetromino ENDP
 
 ; (in) rcx tetro index
 LoadTetromino PROC
-    call ClearTetroBuffer
+	call ClearTetroBuffer
 
-    push r8
-    push rax
-    push rdx
-    ; Calculate offset address
-    mov rax, rcx
-    mov r8, 8
-    mul r8                              ; rax = rcx * 8
+	push r8
+	push rax
+	push rdx
+	; Calculate offset address
+	mov rax, rcx
+	mov r8, 8
+	mul r8                              ; rax = rcx * 8
 
-    lea r8, TETRO_SHAPE_POOL  ; 
-    add r8, rax                         ; r8 = (byte*)TETRO_SHAPE_POOL[rcx]
-    mov r8, [r8]
-    ; r8 now points to the desired tetromino
-    ; Layout (byte array):
-    ;   [0]                     tetro width
-    ;   [1]                     tetro height
-    ;   [2..(width * height)]   tetromino data  
+	lea r8, TETRO_SHAPE_POOL   
+	add r8, rax                         ; r8 = (byte*)TETRO_SHAPE_POOL[rcx]
+	mov r8, [r8]
+	; r8 now points to the desired tetromino
+	; Layout (byte array):
+	;   [0]                     tetro width
+	;   [1]                     tetro height
+	;   [2..(width * height)]   tetromino data  
 
-    ; r8 -> [0] tetro width
-    mov al, byte ptr [r8]
-    mov byte ptr [tetroBufferCurrentWidth], al
-    inc r8
-    
-    ; r8 -> [1] tetro height
-    mov al, byte ptr [r8]
-    mov byte ptr [tetroBufferCurrentHeight], al
-    inc r8
+	; r8 -> [0] tetro width
+	mov al, byte ptr [r8]
+	mov byte ptr [tetroBufferCurrentWidth], al
+	inc r8
+	
+	; r8 -> [1] tetro height
+	mov al, byte ptr [r8]
+	mov byte ptr [tetroBufferCurrentHeight], al
+	inc r8
 
-     ; r8 -> [2] tetro color
-    mov al, byte ptr [r8]
-    mov byte ptr [tetroBufferCurrentState], al
-    inc r8
+	 ; r8 -> [2] tetro color
+	mov al, byte ptr [r8]
+	mov byte ptr [tetroBufferCurrentState], al
+	inc r8
 
-    ; r8 -> [3] tetromino data 
+	; r8 -> [3] tetromino data 
 
-    push r10                                        ; x = 0
-    push r11                                        ; y = 0
-    xor r10, r10
-    xor r11, r11
+	push r10                                        ; x = 0
+	push r11                                        ; y = 0
+	xor r10, r10
+	xor r11, r11
 
-    push r12    
-    push r13
-    xor r12, r12
-    xor r13, r13
-    mov r12b, byte ptr [tetroBufferCurrentWidth]    ; maxX
-    mov r13b, byte ptr [tetroBufferCurrentHeight]   ; maxY
-    push r14
-    push r15
+	push r12    
+	push r13
+	xor r12, r12
+	xor r13, r13
+	mov r12b, byte ptr [tetroBufferCurrentWidth]    ; maxX
+	mov r13b, byte ptr [tetroBufferCurrentHeight]   ; maxY
+	push r14
+	push r15
 
 _loopY:
-    cmp r11b, r13b
-    je _loopY_break
-    xor r10b, r10b                                    ; x = 0
+	cmp r11b, r13b
+	je _loopY_break
+	xor r10b, r10b                                  ; x = 0
 
 _loopX:
-    cmp r10b, r12b
-    je _loopX_break
-    
-    ; Calculate read address
-    
-    push rax
-    mov rax, r11                                      ; <- y
-    mul r12
-    add rax, r10
-    add rax, r8
-    mov r14b, byte ptr [rax]
-    
-    pop rax
+	cmp r10b, r12b
+	je _loopX_break
+	
+	; Calculate read address
+	
+	push rax
+	mov rax, r11                                    ; <- y
+	mul r12
+	add rax, r10
+	add rax, r8
+	mov r14b, byte ptr [rax]
+	
+	pop rax
 
-    ; -> r14b now contains the read state
-    cmp r14b, 'x'
-    jne _loopX_continue
-    
-    push rcx
-    push rdx
-    push r8
-    mov rcx, r10
-    mov rdx, r11
-    mov r8, 1
-    call SetTetroState
-    pop r8
-    pop rdx
-    pop rcx
-
+	; -> r14b now contains the read state
+	cmp r14b, 'x'
+	jne _loopX_continue
+	
+	push rcx
+	push rdx
+	push r8
+	mov rcx, r10
+	mov rdx, r11
+	mov r8, 1
+	call SetTetroState
+	pop r8
+	pop rdx
+	pop rcx
 
 _loopX_continue:
-    inc r10b
-    jmp _loopX
+	inc r10b
+	jmp _loopX
 
 _loopX_break:
 _loopY_continue:
-    inc r11b
-    jmp _loopY
+	inc r11b
+	jmp _loopY
 
 _loopY_break:
-    pop r15
-    pop r14
-    pop r13
-    pop r12
-    pop r11
-    pop r10
+	pop r15
+	pop r14
+	pop r13
+	pop r12
+	pop r11
+	pop r10
 
-    pop rdx
-    pop rax
-    pop r8
-    ret
+	pop rdx
+	pop rax
+	pop r8
+	ret
 LoadTetromino ENDP
 
 ClearTetroBuffer PROC
-    push rbx 
-    lea rax, tetroBuffer
-    lea rbx, [tetroBuffer + TETRO_BUFFER_SIZE]
+	push rbx 
+	lea rax, tetroBuffer
+	lea rbx, [tetroBuffer + TETRO_BUFFER_SIZE]
 _loop:
-    mov byte ptr [rax], 0  
-    inc rax
-    cmp rax, rbx
-    je _loop_break
-    jmp _loop
+	mov byte ptr [rax], 0  
+	inc rax
+	cmp rax, rbx
+	je _loop_break
+	jmp _loop
+
 _loop_break:
-    pop rbx
-    ret
+	pop rbx
+	ret
 ClearTetroBuffer ENDP
 
 ClearTetroRotateBuffer PROC
-    push rbx 
-    lea rax, tetroBufferRotateTmp
-    lea rbx, [tetroBufferRotateTmp + TETRO_BUFFER_SIZE]
+	push rbx 
+	lea rax, tetroBufferRotateTmp
+	lea rbx, [tetroBufferRotateTmp + TETRO_BUFFER_SIZE]
 _loop:
-    mov byte ptr [rax], 0  
-    inc rax
-    cmp rax, rbx
-    je _loop_break
-    jmp _loop
+	mov byte ptr [rax], 0  
+	inc rax
+	cmp rax, rbx
+	je _loop_break
+	jmp _loop
+
 _loop_break:
-    pop rbx
-    ret
+	pop rbx
+	ret
 ClearTetroRotateBuffer ENDP
 
 CopyTetroTmpToActual PROC
-    push rcx
-    xor rcx, rcx                    ; i = 0
-    push rdx
-    mov rdx, TETRO_BUFFER_SIZE      ; maxI = TBUFSIZE
-    push r8                         ; tmpChar
-    push r9                         ; tmpAddr
+	push rcx
+	xor rcx, rcx                    ; i = 0
+	push rdx
+	mov rdx, TETRO_BUFFER_SIZE      ; maxI = TBUFSIZE
+	push r8                         ; tmpChar
+	push r9                         ; tmpAddr
    
 _loop:
-    cmp rcx, rdx
-    je loop_break
+	cmp rcx, rdx
+	je loop_break
 
    ; lea r8, byte ptr [tetroBuffer + rcx]
-    lea r9, tetroBufferRotateTmp
-    add r9, rcx
-    mov r8b, byte ptr [r9]
+	lea r9, tetroBufferRotateTmp
+	add r9, rcx
+	mov r8b, byte ptr [r9]
 
-    lea r9, tetroBuffer
-    add r9, rcx
-    mov byte ptr [r9], r8b
+	lea r9, tetroBuffer
+	add r9, rcx
+	mov byte ptr [r9], r8b
 
-    inc rcx
-    jmp _loop
+	inc rcx
+	jmp _loop
 
 loop_break:
-    pop r9
-    pop r8
-    pop rdx
-    pop rcx
-    ret
+	pop r9
+	pop r8
+	pop rdx
+	pop rcx
+	ret
 CopyTetroTmpToActual ENDP
 
 ClearScreen PROC
-    LOCAL bgBrush: QWORD
-    LOCAL rectToInvalidate: RECT
+	LOCAL bgBrush: QWORD
+	LOCAL rectToInvalidate: RECT
 
-    enter 32, 0
-    push rcx
-    push rdx
+	enter 32, 0
+	push rcx
+	push rdx
 
-    mov rcx, 00220202h
-    call CreateSolidBrush
-    mov bgBrush, rax
-     
-    ; Get area to fill
-    mov rcx, [hwndWindow]
-    lea rdx, rectToInvalidate
-    call GetClientRect
+	mov rcx, 00220202h
+	call CreateSolidBrush
+	mov bgBrush, rax
+	 
+	; Get area to fill
+	mov rcx, [hwndWindow]
+	lea rdx, rectToInvalidate
+	call GetClientRect
 
-    mov rcx, [hdc]
-    lea rdx, rectToInvalidate
-    mov r8, bgBrush
-    call FillRect
+	mov rcx, [hdc]
+	lea rdx, rectToInvalidate
+	mov r8, bgBrush
+	call FillRect
 
-    ; Destroy brush
-    mov rcx, bgBrush
-    call DeleteObject
+	; Destroy brush
+	mov rcx, bgBrush
+	call DeleteObject
 
-    pop rdx
-    pop rcx
-    leave
-    ret
+	pop rdx
+	pop rcx
+	leave
+	ret
 ClearScreen ENDP
 
 ; Rotates the currently selected tetromino (in tetroBuffer) Clockwise
 RotateTetroCW PROC
-    push rcx
-    push rdx
-    xor rcx, rcx                ; x = 0
-    xor rdx, rdx                ; y = 0
-    push r8
-    push r9
-    mov r8, TETRO_MAX_WIDTH     ; maxWidth
-    mov r9, TETRO_MAX_HEIGHT    ; maxHeight
-    push r10                    ; readX
-    push r11                    ; readY
-    push r12                    ; tmpChar
-    push r13
-    push r14
-    xor r13, r13
-    xor r14, r14
-    mov r13b, [tetroBufferCurrentWidth]
-    mov r14b, [tetroBufferCurrentHeight]
-    
-    call ClearTetroRotateBuffer
+	push rcx
+	push rdx
+	xor rcx, rcx                ; x = 0
+	xor rdx, rdx                ; y = 0
+	push r8
+	push r9
+	mov r8, TETRO_MAX_WIDTH     ; maxWidth
+	mov r9, TETRO_MAX_HEIGHT    ; maxHeight
+	push r10                    ; readX
+	push r11                    ; readY
+	push r12                    ; tmpChar
+	push r13
+	push r14
+	xor r13, r13
+	xor r14, r14
+	mov r13b, [tetroBufferCurrentWidth]
+	mov r14b, [tetroBufferCurrentHeight]
+	
+	call ClearTetroRotateBuffer
 
 y_loop:
-    cmp rdx, r9
-    je y_loop_break
-    xor rcx, rcx                ; x = 0
+	cmp rdx, r9
+	je y_loop_break
+	xor rcx, rcx                ; x = 0
 x_loop:
-    cmp rcx, r8
-    je x_loop_break
+	cmp rcx, r8
+	je x_loop_break
 
-    ; putX = rcx
-    ; putY = rdx
-    ; Calculate ReadX, ReadY
-    mov r10, rdx                ; readX = putY
+	; putX = rcx
+	; putY = rdx
+	; Calculate ReadX, ReadY
+	mov r10, rdx				; readX = putY
 
-    mov r11, r14                 ; readY = maxHeight
-    dec r11                     ; --readY
-    sub r11, rcx                ; readY -= putX
+	mov r11, r14                ; readY = maxHeight
+	dec r11                     ; --readY
+	sub r11, rcx                ; readY -= putX
 
-    ; readX = r10
-    ; readY = r11
+	; readX = r10
+	; readY = r11
 
-    ; Retrieve Read state
-    push rcx
-    push rdx
-    mov rcx, r10
-    mov rdx, r11
-    call GetTetroState
-    mov r12, rax
+	; Retrieve Read state
+	push rcx
+	push rdx
+	mov rcx, r10
+	mov rdx, r11
+	call GetTetroState
+	mov r12, rax
 
-    pop rdx
-    pop rcx
+	pop rdx
+	pop rcx
 
-    ; Set new state
-    push r8
-    mov r8, r12
-    call SetTetroTmpState
-    pop r8
+	; Set new state
+	push r8
+	mov r8, r12
+	call SetTetroTmpState
+	pop r8
 
-    inc rcx
-    jmp x_loop
+	inc rcx
+	jmp x_loop
 
 y_loop_continue:
 x_loop_break:
-    inc rdx
-    jmp y_loop
+	inc rdx
+	jmp y_loop
 
 y_loop_break:
 
-    mov byte ptr [tetroBufferCurrentWidth], r14b    ; swap x and y
-    mov byte ptr [tetroBufferCurrentHeight], r13b
+	mov byte ptr [tetroBufferCurrentWidth], r14b    ; swap x and y
+	mov byte ptr [tetroBufferCurrentHeight], r13b
 
-    pop r14
-    pop r13
-    pop r12
-    pop r11
-    pop r10
-    pop r9
-    pop r8
-    pop rdx
-    pop rcx
+	pop r14
+	pop r13
+	pop r12
+	pop r11
+	pop r10
+	pop r9
+	pop r8
+	pop rdx
+	pop rcx
 
-    ; copy tmpRotateBuffer to tetro buffer
-    call CopyTetroTmpToActual
+	; copy tmpRotateBuffer to tetro buffer
+	call CopyTetroTmpToActual
 
-    ret
+	ret
 RotateTetroCW ENDP
 
 RotateTetroCCW PROC
-    call RotateTetroCW
-    call RotateTetroCW
-    call RotateTetroCW
-    ret
+	call RotateTetroCW
+	call RotateTetroCW
+	call RotateTetroCW
+	ret
 RotateTetroCCW ENDP
 
 ; (in) rcx X
 ; (in) rdx Y
 GetTetroState PROC
-    push r8
-    push rdx
-    mov r8, TETRO_MAX_WIDTH
+	push r8
+	push rdx
+	mov r8, TETRO_MAX_WIDTH
 
-    mov rax, rdx
-    mul r8
-    add rax, rcx
-    
-    lea r8, tetroBuffer
-    add rax, r8
-    
-    mov r8b, byte ptr [rax]
-    xor rax, rax
-    mov al, r8b
+	mov rax, rdx
+	mul r8
+	add rax, rcx
+	
+	lea r8, tetroBuffer
+	add rax, r8
+	
+	mov r8b, byte ptr [rax]
+	xor rax, rax
+	mov al, r8b
 
-    pop rdx
-    pop r8
-    ret
+	pop rdx
+	pop r8
+	ret
 GetTetroState ENDP
 
 ; (in) rcx X
 ; (in) rdx Y
 ; (in) r8 state
 SetTetroState PROC
-    push r8
-    push rdx
-    mov r8, TETRO_MAX_WIDTH
+	push r8
+	push rdx
+	mov r8, TETRO_MAX_WIDTH
 
-    mov rax, rdx            ; rax = Y
-    mul r8                  ; rax *= GRID_SIZE_X
-    add rax, rcx            ; rax += X
-    
-    lea r8, tetroBuffer       ; 
-    add rax, r8             ; rax += &playField
+	mov rax, rdx            ; rax = Y
+	mul r8                  ; rax *= GRID_SIZE_X
+	add rax, rcx            ; rax += X
+	
+	lea r8, tetroBuffer        
+	add rax, r8             ; rax += &playField
 
-    pop rdx
-    pop r8
-    mov byte ptr [rax], r8b
+	pop rdx
+	pop r8
+	mov byte ptr [rax], r8b
 
-    ret
+	ret
 SetTetroState ENDP
 
 SetTetroTmpState PROC
-    push r8
-    push rdx
-    mov r8, TETRO_MAX_WIDTH
+	push r8
+	push rdx
+	mov r8, TETRO_MAX_WIDTH
 
-    mov rax, rdx            ; rax = Y
-    mul r8                  ; rax *= GRID_SIZE_X
-    add rax, rcx            ; rax += X
-    
-    lea r8, tetroBufferRotateTmp 
-    add rax, r8             ; rax += &playField
+	mov rax, rdx            ; rax = Y
+	mul r8                  ; rax *= GRID_SIZE_X
+	add rax, rcx            ; rax += X
+	
+	lea r8, tetroBufferRotateTmp 
+	add rax, r8             ; rax += &playField
 
-    pop rdx
-    pop r8
-    mov byte ptr [rax], r8b
+	pop rdx
+	pop r8
+	mov byte ptr [rax], r8b
 
-    ret
+	ret
 SetTetroTmpState ENDP
 
 ; (in) rcx X
 ; (in) rdx Y
 GetFieldState PROC
-    push r8
-    push rdx
-    cmp rdx, GRID_SIZE_Y
-    jge false_oob
-    mov r8, GRID_SIZE_X
-    cmp rcx, r8
-    jge false_oob
+	push r8
+	push rdx
+	cmp rdx, GRID_SIZE_Y
+	jge false_oob
+	mov r8, GRID_SIZE_X
+	cmp rcx, r8
+	jge false_oob
 
-    mov rax, rdx
-    mul r8
-    add rax, rcx
-    
-    lea r8, playField
-    add rax, r8
-    
-    mov r8b, byte ptr [rax]
-    xor rax, rax
-    mov al, r8b
+	mov rax, rdx
+	mul r8
+	add rax, rcx
+	
+	lea r8, playField
+	add rax, r8
+	
+	mov r8b, byte ptr [rax]
+	xor rax, rax
+	mov al, r8b
 
-    pop rdx
-    pop r8
-    ret
+	pop rdx
+	pop r8
+	ret
 false_oob:
-    xor rax, rax
-    pop rdx
-    pop r8
-    ret
+	xor rax, rax
+	pop rdx
+	pop r8
+	ret
 GetFieldState ENDP
 
 ; (in) rcx X
 ; (in) rdx Y
 ; (in) r8 state
 SetFieldState PROC
-    push r8
-    push rdx
-    mov r8, GRID_SIZE_X
+	push r8
+	push rdx
+	mov r8, GRID_SIZE_X
 
-    mov rax, rdx            ; rax = Y
-    mul r8                  ; rax *= GRID_SIZE_X
-    add rax, rcx            ; rax += X
-    
-    lea r8, playField       ; 
-    add rax, r8             ; rax += &playField
+	mov rax, rdx            ; rax = Y
+	mul r8                  ; rax *= GRID_SIZE_X
+	add rax, rcx            ; rax += X
+	
+	lea r8, playField       ; 
+	add rax, r8             ; rax += &playField
 
-    pop rdx
-    pop r8
-    mov byte ptr [rax], r8b
+	pop rdx
+	pop r8
+	mov byte ptr [rax], r8b
 
-    ret
+	ret
 SetFieldState ENDP
 
 ; (in) rcx x
 ; (in) rdx y
 ; (in) r8 color
 RenderBlock PROC
-    LOCAL blockRect: RECT
-    LOCAL blockBrush: QWORD
+	LOCAL blockRect: RECT
+	LOCAL blockBrush: QWORD
 
-    push rcx
-    push rdx
-    push r8
-    mov r8, BLOCK_PIXEL_LENGTH
+	push rcx
+	push rdx
+	push r8
+	mov r8, BLOCK_PIXEL_LENGTH
 
 
-    ; Scale coordinates with PIXEL_LENGTH
-    push rdx
+	; Scale coordinates with PIXEL_LENGTH
+	push rdx
 
-    mov rax, rcx
-    mul r8
-    mov rcx, rax
+	mov rax, rcx
+	mul r8
+	mov rcx, rax
 
-    pop rdx
+	pop rdx
 
-    mov rax, rdx
-    mul r8
-    mov rdx, rax
+	mov rax, rdx
+	mul r8
+	mov rdx, rax
 
-    ; Setup rect with scaled coordinates
-    mov dword ptr blockRect.left, ecx
-    add ecx, BLOCK_PIXEL_LENGTH
-    mov dword ptr blockRect.right, ecx
+	; Setup rect with scaled coordinates
+	mov dword ptr blockRect.left, ecx
+	add ecx, BLOCK_PIXEL_LENGTH
+	mov dword ptr blockRect.right, ecx
 
-    mov dword ptr blockRect.top, edx
-    add edx, BLOCK_PIXEL_LENGTH
-    mov dword ptr blockRect.bottom, edx
+	mov dword ptr blockRect.top, edx
+	add edx, BLOCK_PIXEL_LENGTH
+	mov dword ptr blockRect.bottom, edx
 
-    ; Create brush
-    pop r8                  ; restore original color
-    mov rcx, r8
-    push r9
-    
-    sub rsp, 32 + 8         
-    call CreateSolidBrush
+	; Create brush
+	pop r8                  ; restore original color
+	mov rcx, r8
+	push r9
+	
+	sub rsp, 32 + 8         
+	call CreateSolidBrush
 
-    mov blockBrush, rax
+	mov blockBrush, rax
 
-    mov rcx, [hdc]
-    lea rdx, blockRect
-    mov r8, blockBrush
-    
-    call FillRect  
+	mov rcx, [hdc]
+	lea rdx, blockRect
+	mov r8, blockBrush
+	
+	call FillRect  
 
-    ; Destroy brush
-    mov rcx, blockBrush
+	; Destroy brush
+	mov rcx, blockBrush
 
-    call DeleteObject
-    add rsp, 32 + 8
-    pop r9
+	call DeleteObject
+	add rsp, 32 + 8
+	pop r9
 
-    pop rdx
-    pop rcx
-    ret
+	pop rdx
+	pop rcx
+	ret
 RenderBlock ENDP
 
 RenderPlayerField PROC
-    push rcx
-    push rdx
-    xor rcx, rcx            ; x = 0
-    xor rdx, rdx            ; y = 0
-    push r8
-    push r9
-    mov r8, GRID_SIZE_X     ; maxX
-    mov r9, GRID_SIZE_Y     ; maxY
-    push r10
-    push r11
+	push rcx
+	push rdx
+	xor rcx, rcx            ; x = 0
+	xor rdx, rdx            ; y = 0
+	push r8
+	push r9
+	mov r8, GRID_SIZE_X     ; maxX
+	mov r9, GRID_SIZE_Y     ; maxY
+	push r10
+	push r11
 
-    ; outer Y loop
+	; outer Y loop
 loop_y:
-    cmp rdx, r9
-    je loop_y_break
+	cmp rdx, r9
+	je loop_y_break
 
-    xor rcx, rcx
-    ; do x loop
+	xor rcx, rcx
+	; do x loop
 loop_x:
-    cmp rcx, r8
-    je loop_x_break
+	cmp rcx, r8
+	je loop_x_break
 
-    call GetFieldState
-    test al, al
-    jnz draw_single_block
+	call GetFieldState
+	test al, al
+	jnz draw_single_block
 
-    jmp loop_x_continue
+	jmp loop_x_continue
 
 draw_single_block:
-    push r8
-    push rcx
-    ;mov r8, 00FF0000h
-    mov cl, al
-    call GetColor
-    mov r8, rax
-    pop rcx
-    call RenderBlock
-    pop r8
-    jmp loop_x_continue
+	push r8
+	push rcx
+	mov cl, al
+	call GetColor
+	mov r8, rax
+	pop rcx
+	call RenderBlock
+	pop r8
+	jmp loop_x_continue
 
 loop_x_continue:
-    inc rcx
-    jmp loop_x
+	inc rcx
+	jmp loop_x
 loop_x_break:
-    inc rdx
-    jmp loop_y
+	inc rdx
+	jmp loop_y
 
 loop_y_break:
-    
-    pop r11
-    pop r10
-    pop r9
-    pop r8
-    pop rdx
-    pop rcx
+	
+	pop r11
+	pop r10
+	pop r9
+	pop r8
+	pop rdx
+	pop rcx
 
-    ret
+	ret
 RenderPlayerField ENDP
 
 RenderPlayer PROC
-    push rax
-    push rbx
-    push rcx
-    push rdx
-    push r8
-    push r9
-    push r10
-    xor rax, rax                                    ; x
-    xor rbx, rbx                                    ; y
-    xor rcx, rcx
-    mov cl, byte ptr [tetroBufferCurrentWidth]      ; maxX
-    xor rdx, rdx
-    mov dl, byte ptr [tetroBufferCurrentHeight]     ; maxY
-    xor r8, r8
-    mov r8b, byte ptr [playerPosX]                   ; playerX
-    xor r9, r9
-    mov r9b, byte ptr [playerPosY]                   ; playerY
+	push rax
+	push rbx
+	push rcx
+	push rdx
+	push r8
+	push r9
+	push r10
+	xor rax, rax                                    ; x
+	xor rbx, rbx                                    ; y
+	xor rcx, rcx
+	mov cl, byte ptr [tetroBufferCurrentWidth]      ; maxX
+	xor rdx, rdx
+	mov dl, byte ptr [tetroBufferCurrentHeight]     ; maxY
+	xor r8, r8
+	mov r8b, byte ptr [playerPosX]					; playerX
+	xor r9, r9
+	mov r9b, byte ptr [playerPosY]                  ; playerY
 
 _loopY:
-    cmp bl, dl                                      ; if (y == maxY)
-    je _loopY_break
+	cmp bl, dl                                      ; if (y == maxY)
+	je _loopY_break
 
 _loopX:
-    cmp al, cl                                      ; if (x == maxX)
-    je _loopX_break
-    ; inner loop body
+	cmp al, cl                                      ; if (x == maxX)
+	je _loopX_break
+	; inner loop body
 
-    ; check if player tetro block is set
-    
-    push rcx
-    push rdx
-    mov rcx, rax
-    mov rdx, rbx
-    push rax
-    call GetTetroState
-    mov r10, rax
-    pop rax
-    pop rdx
-    pop rcx
+	; check if player tetro block is set	
+	push rcx
+	push rdx
+	mov rcx, rax
+	mov rdx, rbx
+	push rax
+	call GetTetroState
+	mov r10, rax
+	pop rax
+	pop rdx
+	pop rcx
 
-    ; tetro state is now in r10
-    test r10, r10
-    jz _loopX_continue
+	; tetro state is now in r10
+	test r10, r10
+	jz _loopX_continue
 
-    push rcx
-    push rdx
-    mov rcx, rax
-    add rcx, r8
-    mov rdx, rbx
-    add rdx, r9
-    push r8
+	push rcx
+	push rdx
+	mov rcx, rax
+	add rcx, r8
+	mov rdx, rbx
+	add rdx, r9
+	push r8
 
-    push rax
-    push rcx
-    mov cl, byte ptr [tetroBufferCurrentState]
-    call GetColor
-    pop rcx
-    mov r8, rax         ; Todo state to color
-    ;pop rax
+	push rax
+	push rcx
+	mov cl, byte ptr [tetroBufferCurrentState]
+	call GetColor
+	pop rcx
+	mov r8, rax         ; Todo state to color
 
-    ;push rax
-    call RenderBlock
-    pop rax
-    pop r8
+	call RenderBlock
+	pop rax
+	pop r8
 
-    pop rdx
-    pop rcx
+	pop rdx
+	pop rcx
 
 _loopX_continue:
-    inc al
-    jmp _loopX
+	inc al
+	jmp _loopX
 
 _loopX_break:
 _loopY_continue:
-    inc bl
-    xor rax, rax
-    jmp _loopY
+	inc bl
+	xor rax, rax
+	jmp _loopY
 
 _loopY_break:
 
-    pop r10
-    pop r9
-    pop r8
-    pop rdx
-    pop rcx
-    pop rbx
-    pop rax
-    ret
+	pop r10
+	pop r9
+	pop r8
+	pop rdx
+	pop rcx
+	pop rbx
+	pop rax
+	ret
 RenderPlayer ENDP
 
 ; (in) rcx row index
 CheckIfRowFull PROC
-    push rdx
-    xor rdx, rdx
-    push r8
-    xor r8, r8
-    mov r8b, GRID_SIZE_X
+	push rdx
+	xor rdx, rdx
+	push r8
+	xor r8, r8
+	mov r8b, GRID_SIZE_X
 
 _loop:
-    cmp rdx, r8
-    je _loop_break_true
+	cmp rdx, r8
+	je _loop_break_true
 
-    push rcx
-    push rdx
-    xchg rcx, rdx      
-    call GetFieldState
-    pop rdx
-    pop rcx
-    test rax, rax
-    jz _loop_break_false
+	push rcx
+	push rdx
+	xchg rcx, rdx      
+	call GetFieldState
+	pop rdx
+	pop rcx
+	test rax, rax
+	jz _loop_break_false
 
-    inc rdx
-    jmp _loop
+	inc rdx
+	jmp _loop
 
 _loop_break_false:
-    mov rax, 0
-    jmp _loop_break
+	mov rax, 0
+	jmp _loop_break
 
 _loop_break_true:
-    mov rax, 1
+	mov rax, 1
 _loop_break:
-    pop r8
-    pop rdx
+	pop r8
+	pop rdx
 
-    ret
+	ret
 CheckIfRowFull ENDP
 
 ; (in) rcx: base row. row above will get copied
 MoveRowDown PROC
-    push rdx
-    push r8
-    push r9
-    xor rdx, rdx
+	push rdx
+	push r8
+	push r9
+	xor rdx, rdx
 _loop:
-    cmp rdx, GRID_SIZE_X
-    je _loop_break
+	cmp rdx, GRID_SIZE_X
+	je _loop_break
 
-    
-    ; read state
-    push rcx    ; rn Y
-    dec rcx     ; rn Y-1
-    push rdx    ; rn X
-    xchg rcx, rdx
-    ; rcx->X
-    ; rdx->Y-1
-    call GetFieldState
-    mov r8, rax
-    pop rdx
-    pop rcx
-    ; to copy is now in r8
-    push rcx
-    push rdx
-    xchg rcx, rdx
-    call SetFieldState
-    pop rdx
-    pop rcx
+	; read state
+	push rcx    ; rn Y
+	dec rcx     ; rn Y-1
+	push rdx    ; rn X
+	xchg rcx, rdx
+	; rcx->X
+	; rdx->Y-1
+	call GetFieldState
+	mov r8, rax
+	pop rdx
+	pop rcx
+	; to copy is now in r8
+	push rcx
+	push rdx
+	xchg rcx, rdx
+	call SetFieldState
+	pop rdx
+	pop rcx
 
-
-    inc rdx
-    jmp _loop
+	inc rdx
+	jmp _loop
 _loop_break:
 
-    pop r9
-    pop r8
-    pop rdx
-    ret
+	pop r9
+	pop r8
+	pop rdx
+	ret
 MoveRowDown ENDP
 
 ; (in) rcx: base row to start
 MoveAllRowsDown PROC
-    push rcx
+	push rcx
 _loop:
-    test rcx, rcx
-    jz _loop_break
-    call MoveRowDown
-    dec rcx
-    jmp _loop
+	test rcx, rcx
+	jz _loop_break
+	call MoveRowDown
+	dec rcx
+	jmp _loop
 _loop_break:
-    pop rcx
-    ret
+	pop rcx
+	ret
 MoveAllRowsDown ENDP
 
-; (in) rcx row to clear
-; ClearRow PROC
-;     push r8
-;     xor r8, r8
-; _loop:
-;     cmp r8, GRID_SIZE_X 
-;     je _loop_break
-; 
-;     push rcx
-;     push rdx
-;     push r8
-;     mov rdx, rcx
-;     mov rcx, r8
-;     mov r8, 0
-;     call SetFieldState
-;     pop r8
-;     pop rdx
-;     pop rcx
-; 
-;     inc r8
-;     jmp _loop
-; 
-; _loop_break:
-;     pop r8
-; 
-;     ret
-; ClearRow ENDP
-
 UpdatePointsString PROC
-    push rsi
-    push rax
-    mov rax, qword ptr [points]
-    lea rsi, pointsBuf
-    call IntToStr
-    
-    pop rax
-    pop rsi
-    ret
+	push rsi
+	push rax
+	mov rax, qword ptr [points]
+	lea rsi, pointsBuf
+	call IntToStr
+	
+	pop rax
+	pop rsi
+	ret
 UpdatePointsString ENDP
 
 CheckRowClear PROC
-    push rcx
-    mov rcx, GRID_SIZE_Y - 1       ; row index
-    push r8
+	push rcx
+	mov rcx, GRID_SIZE_Y - 1       ; row index
+	push r8
 
 _loop:
-    cmp rcx, 0
-    jl loop_break
-    xor r8, r8
+	cmp rcx, 0
+	jl loop_break
+	xor r8, r8
 
 innerloop:
-    call CheckIfRowFull
-    test rax, rax
-    jz loop_continue
-    inc r8
-    ;call ClearRow
-    call MoveAllRowsDown
-    jmp innerloop
+	call CheckIfRowFull
+	test rax, rax
+	jz loop_continue
+	inc r8
+	;call ClearRow
+	call MoveAllRowsDown
+	jmp innerloop
 
 loop_continue:
-    push rax
-    push rdx
-    mov rax, r8
-    mul rax
-    mov r8, rax
-    pop rdx
-    pop rax
+	push rax
+	push rdx
+	mov rax, r8
+	mul rax
+	mov r8, rax
+	pop rdx
+	pop rax
 
-    add qword ptr [points], r8
-    call UpdatePointsString
+	add qword ptr [points], r8
+	call UpdatePointsString
 
-    dec rcx
-    jmp _loop
+	dec rcx
+	jmp _loop
 
-loop_break:
-    
-    pop r8
-    pop rdx
-    ret
+loop_break:	
+	pop r8
+	pop rdx
+	ret
 CheckRowClear ENDP
 
 GameUpdate PROC
-    call MovePlayerDown
-    ret
+	call MovePlayerDown
+	ret
 GameUpdate ENDP
 
 GamePaint PROC
-    LOCAL ps: QWORD
+	LOCAL ps: QWORD
 
-    sub rsp, 72
-    mov ps, rsp
+	sub rsp, 72
+	mov ps, rsp
 
-    mov rcx, hwndWindow
-    mov rdx, ps
-    call BeginPaint
-    mov [hdc], rax
+	mov rcx, hwndWindow
+	mov rdx, ps
+	call BeginPaint
+	mov [hdc], rax
 
-    call ClearScreen
+	call ClearScreen
 
-    call RenderPlayerField
+	call RenderPlayerField
 
-    call RenderPlayer
+	call RenderPlayer
 
-    sub rsp, 16
-    mov rcx, [hdc]
-    mov rdx, 10
-    mov r8, 10
-    lea r9, OFFSET strPoints
-    mov dword ptr [rsp + 32], 6
-    call TextOutA
+	sub rsp, 16
+	mov rcx, [hdc]
+	mov rdx, 10
+	mov r8, 10
+	lea r9, OFFSET strPoints
+	mov dword ptr [rsp + 32], 6
+	call TextOutA
 
-    mov rcx, [hdc]
-    mov rdx, 60
-    mov r8, 10
-    lea r9, OFFSET pointsBuf
-    add r9, 5
-    mov dword ptr [rsp + 32], 5
-    call TextOutA
+	mov rcx, [hdc]
+	mov rdx, 60
+	mov r8, 10
+	lea r9, OFFSET pointsBuf
+	add r9, 5
+	mov dword ptr [rsp + 32], 5
+	call TextOutA
 
-    add rsp, 16
+	add rsp, 16
 
-    mov rcx, [hwndWindow]
-    mov rdx, ps 
-    call EndPaint
+	mov rcx, [hwndWindow]
+	mov rdx, ps 
+	call EndPaint
 
-    add rsp, 72
+	add rsp, 72
 
-    ret
+	ret
 GamePaint ENDP
 
 RequestPaint PROC
-    push rcx
-    push rdx
-    push r8
-    mov rcx, [hwndWindow]
-    mov rdx, 0
-    mov r8, 0
-    call InvalidateRect
-    pop r8
-    pop rdx
-    pop rcx
-    ret
+	push rcx
+	push rdx
+	push r8
+	mov rcx, [hwndWindow]
+	mov rdx, 0
+	mov r8, 0
+	call InvalidateRect
+	pop r8
+	pop rdx
+	pop rcx
+	ret
 RequestPaint ENDP
 
 IsPlayerJammedInPlayfield PROC
-    xor rax, rax
-    push rcx
-    push rdx
-    ;xor rcx, rcx                        ; x = 0
-    xor rdx, rdx                        ; y = 0
-    push r8                 
-    push r9                     
-    mov r8b, [tetroBufferCurrentWidth]  ; maxX
-    mov r9b, [tetroBufferCurrentHeight] ; maxY
+	xor rax, rax
+	push rcx
+	push rdx
+	xor rdx, rdx                        ; y = 0
+	push r8                 
+	push r9                     
+	mov r8b, [tetroBufferCurrentWidth]  ; maxX
+	mov r9b, [tetroBufferCurrentHeight] ; maxY
 
 loopY:
-    cmp dl, r9b                         ; if(y == maxY)
-    je loopY_break
-    xor rcx, rcx
+	cmp dl, r9b                         ; if(y == maxY)
+	je loopY_break
+	xor rcx, rcx
 loopX:
-    cmp cl, r8b                         ; if(x == maxX)
-    je loopX_break
+	cmp cl, r8b                         ; if(x == maxX)
+	je loopX_break
 
-    call GetTetroState
-    test rax, rax
-    jz loopX_continue
-    ; check if there is a block in playfield at [x + playerPosX, y + playerPosY]
-    ; if yes, do loopY_break and set rax to 1
-
-    add cl, byte ptr [playerPosX]
-    add dl, byte ptr [playerPosY]
-    call GetFieldState
-    test rax, rax
-    jz noEarlyReturn
-    mov rax, 1
-    jmp loopY_break
+	call GetTetroState
+	test rax, rax
+	jz loopX_continue
+	; check if there is a block in playfield at [x + playerPosX, y + playerPosY]
+	; if yes, do loopY_break and set rax to 1
+	add cl, byte ptr [playerPosX]
+	add dl, byte ptr [playerPosY]
+	call GetFieldState
+	test rax, rax
+	jz noEarlyReturn
+	mov rax, 1
+	jmp loopY_break
 
 noEarlyReturn:
-    sub cl, byte ptr [playerPosX]
-    sub dl, byte ptr [playerPosY]
+	sub cl, byte ptr [playerPosX]
+	sub dl, byte ptr [playerPosY]
 
 loopX_continue:
-    inc cl
-    jmp loopX
+	inc cl
+	jmp loopX
+
 loopX_break:
 loopY_continue:
-    inc dl
-    jmp loopY
-loopY_break:
-    
-    
-    pop r9
-    pop r8
-    pop rdx
-    pop rcx
-    ret
+	inc dl
+	jmp loopY
+
+loopY_break:    
+	pop r9
+	pop r8
+	pop rdx
+	pop rcx
+	ret
 IsPlayerJammedInPlayfield ENDP
 
 IsPlayerJammedInBounds PROC
-    mov rax, 0
-    push rcx
-    push rbx
-    mov bl, byte ptr [playerPosX]
-    cmp bl, -1
-    jle return_true
+	mov rax, 0
+	push rcx
+	push rbx
+	mov bl, byte ptr [playerPosX]
+	cmp bl, -1
+	jle return_true
 
-    mov rcx, GRID_SIZE_X
-    sub cl, byte ptr [tetroBufferCurrentWidth]
-    inc cl
-    cmp bl, cl
-    jge return_true
+	mov rcx, GRID_SIZE_X
+	sub cl, byte ptr [tetroBufferCurrentWidth]
+	inc cl
+	cmp bl, cl
+	jge return_true
 
-    mov bl, byte ptr [playerPosY]
-    mov rcx, GRID_SIZE_Y
-    sub cl, byte ptr [tetroBufferCurrentHeight]
-    inc cl
-    cmp bl, cl
-    jge return_true
+	mov bl, byte ptr [playerPosY]
+	mov rcx, GRID_SIZE_Y
+	sub cl, byte ptr [tetroBufferCurrentHeight]
+	inc cl
+	cmp bl, cl
+	jge return_true
 
-
-    jmp return_false
-    
+	jmp return_false
+	
 return_true:
-    mov rax, 1
+	mov rax, 1
 return_false:
-    pop rbx
-    pop rcx
-    ret ; todo
+	pop rbx
+	pop rcx
+	ret ; todo
 IsPlayerJammedInBounds ENDP
 
 IsPlayerJammed PROC
-    mov rax, 0
+	mov rax, 0
 
-    call IsPlayerJammedInPlayfield
-    test rax, rax
-    jnz ret_true
+	call IsPlayerJammedInPlayfield
+	test rax, rax
+	jnz ret_true
 
-    call IsPlayerJammedInBounds
-    ret
+	call IsPlayerJammedInBounds
+	ret
 
 ret_true:
-    mov rax, 1
+	mov rax, 1
 ret_false:
-    ret
+	ret
 IsPlayerJammed ENDP
 
 CommitToPlayField PROC
-    push rcx
-    push rdx
-    ;xor rcx, rcx                       ; x = 0
-    xor rdx, rdx                        ; y = 0
-    push r8                 
-    push r9                     
-    mov r8b, [tetroBufferCurrentWidth]  ; maxX
-    mov r9b, [tetroBufferCurrentHeight] ; maxY
+	push rcx
+	push rdx
+	;xor rcx, rcx                       ; x = 0
+	xor rdx, rdx                        ; y = 0
+	push r8                 
+	push r9                     
+	mov r8b, [tetroBufferCurrentWidth]  ; maxX
+	mov r9b, [tetroBufferCurrentHeight] ; maxY
 
 loopY:
-    cmp dl, r9b                         ; if(y == maxY)
-    je loopY_break
-    xor rcx, rcx
+	cmp dl, r9b                         ; if(y == maxY)
+	je loopY_break
+	xor rcx, rcx
 loopX:
-    cmp cl, r8b                         ; if(x == maxX)
-    je loopX_break
+	cmp cl, r8b                         ; if(x == maxX)
+	je loopX_break
 
-    call GetTetroState
-    test rax, rax
-    jz loopX_continue
-    ; set block
+	call GetTetroState
+	test rax, rax
+	jz loopX_continue
+	; set block
 
-    add cl, byte ptr [playerPosX]
-    add dl, byte ptr [playerPosY]
-    push r8
-    mov r8b, [tetroBufferCurrentState]
-    call SetFieldState
-    pop r8
-    sub dl, byte ptr [playerPosY]
-    sub cl, byte ptr [playerPosX]
+	add cl, byte ptr [playerPosX]
+	add dl, byte ptr [playerPosY]
+	push r8
+	mov r8b, [tetroBufferCurrentState]
+	call SetFieldState
+	pop r8
+	sub dl, byte ptr [playerPosY]
+	sub cl, byte ptr [playerPosX]
 
 loopX_continue:
-    inc cl
-    jmp loopX
+	inc cl
+	jmp loopX
+
 loopX_break:
 loopY_continue:
-    inc dl
-    jmp loopY
-loopY_break:
-    
-    
-    pop r9
-    pop r8
-    pop rdx
-    pop rcx
+	inc dl
+	jmp loopY
 
-    call CheckRowClear
-    ret
+loopY_break:  
+	pop r9
+	pop r8
+	pop rdx
+	pop rcx
+
+	call CheckRowClear
+	ret
 CommitToPlayField ENDP
 
 MovePlayerDown PROC
-    inc [playerPosY]
-    call IsPlayerJammed
-    test rax, rax
-    jz cleanup
-    ; Player is jammed 
-    ; Undo and commit
-    dec [playerPosY]
-    call CommitToPlayField
-    ; Reset player position and new tetro
-    mov byte ptr [playerPosY], 0
-    call LoadRandomTetromino
+	inc [playerPosY]
+	call IsPlayerJammed
+	test rax, rax
+	jz cleanup
+	; Player is jammed 
+	; Undo and commit
+	dec [playerPosY]
+	call CommitToPlayField
+	; Reset player position and new tetro
+	mov byte ptr [playerPosY], 0
+	call LoadRandomTetromino
    
-    push r10
+	push r10
 decollide_loop:
-    inc r10
-    cmp r10, 2048
-    jge decollide_gameOver
-    call IsPlayerJammed
-    test rax, rax
-    jz decollide_break
-    dec [playerPosX]
-    jmp decollide_loop
+	inc r10
+	cmp r10, 2048
+	jge decollide_gameOver
+	call IsPlayerJammed
+	test rax, rax
+	jz decollide_break
+	dec [playerPosX]
+	jmp decollide_loop
 
 decollide_gameOver:
-    push rcx
-    push rdx
-    push r8
-    push r9
+	push rcx
+	push rdx
+	push r8
+	push r9
 
-    mov rcx, 0
-    mov rdx, 1
-    sub rsp, 32
-    call KillTimer
-    add rsp, 32
-    mov rcx, 0
-    lea rdx, strGameOver
-    lea r8, strGameOverCaption
-    mov r9, 0
-    sub rsp, 32
-    ;scall MessageBoxA
-    add rsp, 32
-    mov rcx, 0
-    call ExitProcess
-    pop r9
-    pop r8
-    pop rdx
-    pop rcx
-    
+	mov rcx, 0
+	mov rdx, 1
+	sub rsp, 32
+	call KillTimer
+	add rsp, 32
+	mov rcx, 0
+	lea rdx, strGameOver
+	lea r8, strGameOverCaption
+	mov r9, 0
+	sub rsp, 32
+	;scall MessageBoxA
+	add rsp, 32
+	mov rcx, 0
+	call ExitProcess
+	pop r9
+	pop r8
+	pop rdx
+	pop rcx
+	
 decollide_break:
-    pop r10
+	pop r10
 cleanup:
-    ret
+	ret
 MovePlayerDown ENDP
 
 TryRotateCW PROC
-    call RotateTetroCW
-    call IsPlayerJammed
-    test rax, rax
-    jz doReturn
-    call RotateTetroCW
+	call RotateTetroCW
+	call IsPlayerJammed
+	test rax, rax
+	jz doReturn
+	call RotateTetroCW
 
 doReturn:
-    ret
+	ret
 TryRotateCW ENDP
 
 ; (in) rcx keycode
 OnKeyDown PROC
-    and ecx, 00FFFFFFh  ; Remove repeat-count
-    
-    cmp ecx, VK_W
-    je rotateCW
-    cmp ecx, VK_S
-    je goDown
-    cmp ecx, VK_A
-    je goLeft
-    cmp ecx, VK_D
-    je goRight
+	and ecx, 00FFFFFFh  ; Remove repeat-count
+	
+	cmp ecx, VK_W
+	je rotateCW
+	cmp ecx, VK_S
+	je goDown
+	cmp ecx, VK_A
+	je goLeft
+	cmp ecx, VK_D
+	je goRight
 
-    jmp cleanup
+	jmp cleanup
 
 goLeft:
-    dec [playerPosX]
-    call IsPlayerJammed
-    test rax, rax
-    jz goLeft_cleanup
-    inc [playerPosX]
+	dec [playerPosX]
+	call IsPlayerJammed
+	test rax, rax
+	jz goLeft_cleanup
+	inc [playerPosX]
 goLeft_cleanup:
-    call RequestPaint
-    jmp cleanup
+	call RequestPaint
+	jmp cleanup
 
 goRight:
-    inc [playerPosX]
-    call IsPlayerJammed
-    test rax, rax
-    jz goRight_cleanup
-    dec [playerPosX]
+	inc [playerPosX]
+	call IsPlayerJammed
+	test rax, rax
+	jz goRight_cleanup
+	dec [playerPosX]
 
 goRight_cleanup:
-    call RequestPaint
-    jmp cleanup
+	call RequestPaint
+	jmp cleanup
 rotateCW:
-    call TryRotateCW
-    call RequestPaint
-    jmp cleanup
+	call TryRotateCW
+	call RequestPaint
+	jmp cleanup
 goDown:
-    call MovePlayerDown
-    mov byte ptr [skipNextGL], 1
-    call RequestPaint
-    jmp cleanup
+	call MovePlayerDown
+	mov byte ptr [skipNextGL], 1
+	call RequestPaint
+	jmp cleanup
 
 cleanup:
-    ret
+	ret
 OnKeyDown ENDP
 
 ; (in)  rcx hWnd
@@ -1508,86 +1469,86 @@ OnKeyDown ENDP
 ; (in)  r10 lParam
 ; (out) rax LRESULT
 WndProc PROC
-    enter 32, 0
+	enter 32, 0
 
-    cmp edx, WM_CREATE
-    je onWmCreate
+	cmp edx, WM_CREATE
+	je onWmCreate
 
-    cmp edx, WM_TIMER
-    je onWmTimer
+	cmp edx, WM_TIMER
+	je onWmTimer
 
-    cmp edx, WM_PAINT
-    je onWmPaint
+	cmp edx, WM_PAINT
+	je onWmPaint
 
-    cmp edx, WM_KEYDOWN
-    je onWmKeyDown
+	cmp edx, WM_KEYDOWN
+	je onWmKeyDown
 
-    cmp edx, WM_ERASEBACKGROUND
-    je onWmEraseBackground
+	cmp edx, WM_ERASEBACKGROUND
+	je onWmEraseBackground
 
-    cmp edx, WM_DESTROY
-    je onWmDestroy
+	cmp edx, WM_DESTROY
+	je onWmDestroy
 
-    sub rsp, 32
-    call DefWindowProcA
-    add rsp, 32
-    jmp cleanup
+	sub rsp, 32
+	call DefWindowProcA
+	add rsp, 32
+	jmp cleanup
 
 onWmCreate:
-    ; Create a timer for the game loop
-    mov rdx, 1
-    mov r8, 500
-    mov r9, 0
-    call SetTimer
+	; Create a timer for the game loop
+	mov rdx, 1
+	mov r8, 500
+	mov r9, 0
+	call SetTimer
 
-    xor rax, rax
-    jmp cleanup
+	xor rax, rax
+	jmp cleanup
 
 onWmTimer:
-    mov r12b, byte ptr [skipNextGL]
-    test r12b, r12b
-    jnz skipGameUpdate
+	mov r12b, byte ptr [skipNextGL]
+	test r12b, r12b
+	jnz skipGameUpdate
 
-    call GameUpdate
-    mov rcx, [hwndWindow]
-    mov rdx, 0
-    mov r8, 0
-    call InvalidateRect
+	call GameUpdate
+	mov rcx, [hwndWindow]
+	mov rdx, 0
+	mov r8, 0
+	call InvalidateRect
 skipGameUpdate:
-    mov byte ptr [skipNextGL], 0
+	mov byte ptr [skipNextGL], 0
 
-    xor rax, rax
+	xor rax, rax
 
-    jmp cleanup
+	jmp cleanup
 
 onWmPaint:
-    call GamePaint
-    jmp cleanup
+	call GamePaint
+	jmp cleanup
 
 onWmKeyDown:
-    push rcx
-    mov rcx, r9
-    call OnKeyDown
-    pop rcx
-    jmp cleanup
+	push rcx
+	mov rcx, r9
+	call OnKeyDown
+	pop rcx
+	jmp cleanup
 
 onWmEraseBackground:
-    mov rax, 1
-    jmp cleanup
+	mov rax, 1
+	jmp cleanup
 
 onWmDestroy:
-    xor rcx, rcx
-    call PostQuitMessage
-    xor rax, rax
+	xor rcx, rcx
+	call PostQuitMessage
+	xor rax, rax
 
 cleanup:
-    leave
-    ret
+	leave
+	ret
 
 handle_destroy:
-    mov rcx, 0
-    call ExitProcess
-    ret
+	mov rcx, 0
+	call ExitProcess
+	ret
 WndProc ENDP
 
 end

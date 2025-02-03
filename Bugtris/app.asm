@@ -22,6 +22,8 @@ GetClientRect PROTO
 GetTickCount PROTO
 PlaySoundA PROTO
 Sleep PROTO
+MessageBoxA PROTO
+KillTimer PROTO
 
 RECT struct
     left dd ?
@@ -51,12 +53,15 @@ RECT ends
     myClassName                 db "TestKlasse", 0
     myWindowTitle               db "Tetris", 0
 
-    GRID_SIZE_X                 EQU 20
-    GRID_SIZE_Y                 EQU 30
-    BLOCK_PIXEL_LENGTH          EQU 24
+    GRID_SIZE_X                 EQU 30
+    GRID_SIZE_Y                 EQU 40
+    BLOCK_PIXEL_LENGTH          EQU 25
 
     GRID_NUM_ELEMENTS           EQU GRID_SIZE_X * GRID_SIZE_Y
     GRID_BYTE_SIZE              EQU GRID_NUM_ELEMENTS
+    StrPoints                   db "Score: ", 0
+    StrGameOver                 db "You have lost.",0
+    StrGameOverCaption          db "Game Over!",0
 
 .const                          ; Win32 Definitions ---
     WS_OVERLAPPEDWINDOW         EQU 13565952
@@ -65,7 +70,7 @@ RECT ends
     WM_CREATE                   EQU 1
     WM_DESTROY                  EQU 2
     WM_PAINT                    EQU 15
-    WM_TIMER                    EQU 275
+    WM_TIMER                    EQU 275 
     WM_KEYDOWN                  EQU 256
     WM_ERASEBACKGROUND          EQU 014h
     VK_W                        EQU 110001h
@@ -73,18 +78,18 @@ RECT ends
     VK_S                        EQU 1F0001h
     VK_D                        EQU 200001h
     SND_ASYNC                   EQU 1
-
                                 ; Tetromino shape definitions
-    TETRO_0                     db  2, 4, 1, "x x x xx"     ; L
-    TETRO_1                     db  2, 4, 2, " x x xxx"     ; Reverse L
-    TETRO_2                     db  2, 2, 3, "xxxx"         ; Block
-    TETRO_3                     db  4, 1, 4, "xxxx"         ; Line
-    TETRO_4                     db  3, 2, 5, " xxxx "       ; snake from BL to TR
-    TETRO_5                     db  3, 2, 6, "xx  xx"       ; snake from TR to BL
-    TETRO_6                     db  3, 2, 7, " x xxx"       ; penith
+                                ;   width   height  color   data
+    TETRO_0                     db  2,      3,      1,      "x x xx"     ; L
+    TETRO_1                     db  2,      3,      2,      " x xxx"     ; J
+    TETRO_2                     db  2,      2,      3,      "xxxx"       ; Block
+    TETRO_3                     db  4,      1,      4,      "xxxx"       ; Line
+    TETRO_4                     db  3,      2,      5,      " xxxx "     ; S: snake from BL to TR
+    TETRO_5                     db  3,      2,      6,      "xx  xx"     ; Z: from TR to BL
+    TETRO_6                     db  3,      2,      7,      " x xxx"     ; T
     
     shapePoolStart:
-    TETRO_SHAPE_POOL            dq TETRO_0, TETRO_1, TETRO_2, TETRO_3, TETRO_4, TETRO_5, TETRO_6
+    TETRO_SHAPE_POOL            dq TETRO_0, TETRO_1, TETRO_2, TETRO_3, TETRO_4, TETRO_5, TETRO_6, TETRO_3
                                 ; Tetromino shape pool
     TETRO_SHAPE_POOL_SIZE       EQU ($-shapePoolStart) / 8
     colorPoolStart:
@@ -110,6 +115,8 @@ RECT ends
     hdc                         dq  ?
     rndSeed                     dq  ?
     skipNextGL                  db  ?
+    points                      dq  ?
+    pointsBuf                   db  12                  dup(?)
     
 .code                           ; --------------------------
 
@@ -140,10 +147,12 @@ main PROC
 
    ; mov rax, OFFSET TETRO_0
     ;mov qword ptr [TETRO_SHAPE_POOL], rax
+    mov byte ptr [pointsBuf], '0'
 
     call InitPlayField
 
     call LoadRandomTetromino
+    call UpdatePointsString
 
     mov rcx, 0
     mov rdx, 0
@@ -152,7 +161,7 @@ main PROC
     mov rdx, 0
     call GetTetroState
 
-
+    mov qword ptr [points], 0
     mov byte ptr [playerPosX], 0
     mov byte ptr [playerPosY], 0
     
@@ -309,6 +318,40 @@ RandomRange PROC
     pop r8
     ret
 RandomRange ENDP
+
+; Unsigned integer to string
+; rsi -> Target string address (must support at least 10 bytes)
+; rax -> Integer value to be interpreted (32 bit)
+IntToStr PROC
+    push rax                ; Preserve
+    push r9                    ; String index
+    push r10                ; Temporary register for digit character
+    push r11                ; Register for divison, holds the base
+    push rdx                ; Holds the remainder
+
+    mov r8, 0
+    mov r9, 9                ; We start at the end of the string because little endian
+    mov r11, 10                ; The base we operate in
+itos_loop:
+    cmp r9, -1                ; Check if we did the whole number (32 bit -> 8 bytes)
+    je itos_ret
+
+    mov rdx, 0
+    idiv r11
+
+    add rdx, '0'                ; Convert to ASCII
+    mov byte ptr [rsi + r9], dl     ; Move charater into the string
+    dec r9                        ; Increase the string index
+
+    jmp itos_loop
+itos_ret:
+    pop rdx
+    pop r11
+    pop r10
+    pop r9
+    pop rax
+    ret
+IntToStr ENDP
 
 LoadRandomTetromino PROC
     push rcx
@@ -1048,32 +1091,44 @@ _loop_break:
 MoveAllRowsDown ENDP
 
 ; (in) rcx row to clear
-ClearRow PROC
-    push r8
-    xor r8, r8
-_loop:
-    cmp r8, GRID_SIZE_X 
-    je _loop_break
+; ClearRow PROC
+;     push r8
+;     xor r8, r8
+; _loop:
+;     cmp r8, GRID_SIZE_X 
+;     je _loop_break
+; 
+;     push rcx
+;     push rdx
+;     push r8
+;     mov rdx, rcx
+;     mov rcx, r8
+;     mov r8, 0
+;     call SetFieldState
+;     pop r8
+;     pop rdx
+;     pop rcx
+; 
+;     inc r8
+;     jmp _loop
+; 
+; _loop_break:
+;     pop r8
+; 
+;     ret
+; ClearRow ENDP
 
-    push rcx
-    push rdx
-    push r8
-    mov rdx, rcx
-    mov rcx, r8
-    mov r8, 0
-    call SetFieldState
-    pop r8
-    pop rdx
-    pop rcx
-
-    inc r8
-    jmp _loop
-
-_loop_break:
-    pop r8
-
+UpdatePointsString PROC
+    push rsi
+    push rax
+    mov rax, qword ptr [points]
+    lea rsi, pointsBuf
+    call IntToStr
+    
+    pop rax
+    pop rsi
     ret
-ClearRow ENDP
+UpdatePointsString ENDP
 
 CheckRowClear PROC
     push rcx
@@ -1090,12 +1145,22 @@ innerloop:
     test rax, rax
     jz loop_continue
     inc r8
-    call ClearRow
+    ;call ClearRow
     call MoveAllRowsDown
     jmp innerloop
 
 loop_continue:
-    ; todo attrib points with combo in r8
+    push rax
+    push rdx
+    mov rax, r8
+    mul rax
+    mov r8, rax
+    pop rdx
+    pop rax
+
+    add qword ptr [points], r8
+    call UpdatePointsString
+
     dec rcx
     jmp _loop
 
@@ -1128,7 +1193,23 @@ GamePaint PROC
 
     call RenderPlayer
 
+    sub rsp, 16
+    mov rcx, [hdc]
+    mov rdx, 10
+    mov r8, 10
+    lea r9, OFFSET strPoints
+    mov dword ptr [rsp + 32], 6
+    call TextOutA
 
+    mov rcx, [hdc]
+    mov rdx, 60
+    mov r8, 10
+    lea r9, OFFSET pointsBuf
+    add r9, 5
+    mov dword ptr [rsp + 32], 5
+    call TextOutA
+
+    add rsp, 16
 
     mov rcx, [hwndWindow]
     mov rdx, ps 
@@ -1319,14 +1400,44 @@ MovePlayerDown PROC
     mov byte ptr [playerPosY], 0
     call LoadRandomTetromino
    
+    push r10
 decollide_loop:
+    inc r10
+    cmp r10, 2048
+    jge decollide_gameOver
     call IsPlayerJammed
     test rax, rax
     jz decollide_break
     dec [playerPosX]
     jmp decollide_loop
 
+decollide_gameOver:
+    push rcx
+    push rdx
+    push r8
+    push r9
+
+    mov rcx, 0
+    mov rdx, 1
+    sub rsp, 32
+    call KillTimer
+    add rsp, 32
+    mov rcx, 0
+    lea rdx, strGameOver
+    lea r8, strGameOverCaption
+    mov r9, 0
+    sub rsp, 32
+    ;scall MessageBoxA
+    add rsp, 32
+    mov rcx, 0
+    call ExitProcess
+    pop r9
+    pop r8
+    pop rdx
+    pop rcx
+    
 decollide_break:
+    pop r10
 cleanup:
     ret
 MovePlayerDown ENDP

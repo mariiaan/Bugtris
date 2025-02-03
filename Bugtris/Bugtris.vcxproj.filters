@@ -15,12 +15,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <None Include="main.asm">
-      <Filter>Quelldateien</Filter>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <MASM Include="main2.asm">
+    <MASM Include="app.asm">
       <Filter>Quelldateien</Filter>
     </MASM>
   </ItemGroup>

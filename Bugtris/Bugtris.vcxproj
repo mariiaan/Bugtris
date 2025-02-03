@@ -128,15 +128,13 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EntryPointSymbol>main</EntryPointSymbol>
     </Link>
     <MASM />
     <MASM />
   </ItemDefinitionGroup>
   <ItemGroup>
-    <None Include="main.asm" />
-  </ItemGroup>
-  <ItemGroup>
-    <MASM Include="main2.asm" />
+    <MASM Include="app.asm" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
